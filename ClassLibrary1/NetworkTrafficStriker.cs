@@ -7,6 +7,13 @@ using System.Threading.Tasks;
 
 namespace ClassLibrary1
 {
+
+    while (!_shouldStop)
+    {
+        Console.WriteLine("worker thread: working...");
+    }
+Console.WriteLine("worker thread: terminating gracefully.")
+
     class NetworkTrafficStriker : Strikeable
     {
 

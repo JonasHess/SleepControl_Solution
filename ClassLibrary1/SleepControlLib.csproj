@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Worker.cs" />
     <Compile Include="NetworkTrafficStriker.cs" />
     <Compile Include="Strikeable.cs" />
     <Compile Include="SleepController.cs" />
