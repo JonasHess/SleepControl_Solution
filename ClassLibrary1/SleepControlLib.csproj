@@ -7,8 +7,8 @@
     <ProjectGuid>{C9016EF7-2441-4F2B-8E00-EABF502272CE}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ClassLibrary1</RootNamespace>
-    <AssemblyName>ClassLibrary1</AssemblyName>
+    <RootNamespace>SleepControll_Lib</RootNamespace>
+    <AssemblyName>SleepControll_Lib</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -40,7 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SleepControler.cs" />
+    <Compile Include="NetworkTrafficStriker.cs" />
+    <Compile Include="Strikeable.cs" />
+    <Compile Include="SleepController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -17,7 +17,7 @@ namespace ClassLibrary1
 
         public NetworkTrafficStriker(SleepController sleepController) : base(sleepController) 
         {
-            initializeNetworScanner();
+            initializeNetworScanner();  
         }
         
 
