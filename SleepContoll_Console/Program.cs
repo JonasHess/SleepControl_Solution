@@ -12,7 +12,8 @@ namespace SleepContoll_Console
         static void Main(string[] args)
         {
 
-            ClassLibrary1.SleepController.ShowNetworkTraffic();
+            ClassLibrary1.SleepController s = new ClassLibrary1.SleepController();
+            s.StartSleepControll();
         }
     }
 }

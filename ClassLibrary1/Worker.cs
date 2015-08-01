@@ -17,10 +17,7 @@ namespace SleepControll_Lib
 
         public bool SystemCanGoToSleep
         {
-            get
-            {
-                return SystemCanGoToSleep;
-            }
+            get; set;
         }
 
         // This method will be called when the thread is started.

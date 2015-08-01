@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SleepControll_Lib;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -8,25 +9,32 @@ using System.Threading.Tasks;
 namespace ClassLibrary1
 {
 
-    while (!_shouldStop)
-    {
-        Console.WriteLine("worker thread: working...");
-    }
-Console.WriteLine("worker thread: terminating gracefully.")
-
     class NetworkTrafficStriker : Strikeable
+    {
+
+        public NetworkTrafficStriker(SleepController sleepController) : base(sleepController)
+        {
+
+        }
+
+        public override void addAllWorkers()
+        {
+            this.addWorker(new NetworkTrafficWorker());
+        }
+    }
+
+    class NetworkTrafficWorker : Worker
     {
 
         PerformanceCounterCategory performanceCounterCategory;
         PerformanceCounter performanceCounterSent;
         PerformanceCounter performanceCounterReceived;
-
-
-        public NetworkTrafficStriker(SleepController sleepController) : base(sleepController) 
-        {
-            initializeNetworScanner();  
-        }
         
+
+        public NetworkTrafficWorker()
+        {
+            this.initializeNetworScanner();
+        }
 
         private void initializeNetworScanner() { 
         
@@ -35,16 +43,7 @@ Console.WriteLine("worker thread: terminating gracefully.")
             performanceCounterSent = new PerformanceCounter("Network Interface", "Bytes Sent/sec", instance);
             performanceCounterReceived = new PerformanceCounter("Network Interface", "Bytes Received/sec", instance);
         }
-
-
-        public override bool SystemCanGoToSleep()
-        {
-            throw new NotImplementedException();
-        }
-
-
-
-
+    
         public double getKbsRecieved()
         {
             return performanceCounterReceived.NextValue() / 1024;
@@ -54,6 +53,49 @@ Console.WriteLine("worker thread: terminating gracefully.")
         {
             return performanceCounterSent.NextValue() / 1024;
         }
-    
+
+
+        private int timespan = 20;
+        private double maxKbsRecieved;
+        private double maxKbsSent;
+
+        protected override void DoWork()
+        {
+            timespan--;
+
+            if (timespan <= 0)
+            {
+                timespan = 20;
+                this.SystemCanGoToSleep = TrafficIsToLow(maxKbsRecieved, maxKbsSent);
+
+                maxKbsRecieved = 0;
+                maxKbsSent = 0;
+                
+            }
+
+            double KbsRecieved = this.getKbsRecieved();
+            double KbsSent = this.getKbsSent();
+            if (! TrafficIsToLow(KbsRecieved, KbsSent))
+            {
+                SystemCanGoToSleep = false;
+                timespan = 20;
+            }
+            if (maxKbsRecieved < KbsRecieved)
+            {
+                maxKbsRecieved = KbsRecieved;
+            }
+            if (maxKbsSent < KbsSent)
+            {
+                maxKbsSent = KbsSent;
+            }
+
+            Console.WriteLine(timespan + " :  " + this.getKbsRecieved());
+            System.Threading.Thread.Sleep(500);
+        }
+
+        private bool TrafficIsToLow (double KbsRecieved, double KbsSent)
+        {
+            return !(KbsRecieved > 1000 || KbsSent > 1000);
+        }
     }
 }
