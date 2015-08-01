@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ClassLibrary1;
+using SleepController_Lib;
+using SleepControll_Lib.Sockets;
+using System.Threading;
 
 namespace SleepContoll_Console
 {
@@ -12,8 +14,22 @@ namespace SleepContoll_Console
         static void Main(string[] args)
         {
 
-            ClassLibrary1.SleepController s = new ClassLibrary1.SleepController();
-            s.StartSleepControll();
+            //SleepController_Lib.SleepController s = new SleepController_Lib.SleepController();
+            //s.StartSleepControll();
+
+
+            
+            Thread server = new Thread(AsynchronousSocketListener.StartListening);
+            Thread client = new Thread(AsynchronousClient.StartClient);
+
+            server.Start();
+            System.Threading.Thread.Sleep(5000);
+            client.Start();
+            client.Join();
+            server.Join();
+        
+
+
         }
     }
 }

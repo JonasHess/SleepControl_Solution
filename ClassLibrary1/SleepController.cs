@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SleepControll_Lib;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -8,15 +9,17 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ClassLibrary1
+namespace SleepController_Lib
 {
     public class SleepController
     {
         private List<Strikeable> strikers;
 
-        public SleepController()
-        {
+        public static ISleppControllerConfig config;
 
+        public SleepController(ISleppControllerConfig config)
+        {
+            SleepController.config = config;
 
         }
 
@@ -26,7 +29,10 @@ namespace ClassLibrary1
         public void StartSleepControll()
         {
             this.strikers = new List<Strikeable>();
+            if (config.checkForNetworkTraffic)
+            {
             strikers.Add(new NetworkTrafficStriker(this));
+            }
 
             while (true)
             {
@@ -60,7 +66,7 @@ namespace ClassLibrary1
 
         public void suspendSystem()
         {
-            //throw new NotImplementedException();
+            throw new NotImplementedException();
 
             // Hibernate
             // SetSuspendState(true, true, true);

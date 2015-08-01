@@ -6,20 +6,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ClassLibrary1
+namespace SleepController_Lib
 {
 
     class NetworkTrafficStriker : Strikeable
     {
 
+
+
         public NetworkTrafficStriker(SleepController sleepController) : base(sleepController)
         {
-
+           
         }
 
         public override void addAllWorkers()
         {
-            this.addWorker(new NetworkTrafficWorker());
+            ISleppControllerConfig config = SleepController.config;
+            this.addWorker(new NetworkTrafficWorker(config.timeoutInMinutes, config.SchwellwertRecieved, config.SchwellwertRecieved));
         }
     }
 
@@ -31,19 +34,21 @@ namespace ClassLibrary1
         private PerformanceCounterCategory performanceCounterCategory;
         private PerformanceCounter performanceCounterSent;
         private PerformanceCounter performanceCounterReceived;
-
-        private double timeoutInMinutes = 0.2;
+        
         private int AmountOfTests;
         private const int WaitMillisecBetweenTests = 250;
-        private const double SchwellwertRecieved = 1000;
-        private const double SchwellwertSent = 1000;
+        private double SchwellwertRecieved = 1000;
+        private double SchwellwertSent = 1000;
 
         private int timespan;
         private double maxKbsRecieved;
         private double maxKbsSent;
 
-        public NetworkTrafficWorker()
+        public NetworkTrafficWorker(double timeoutInMinutes, double SchwellwertRecieved, double SchwellwertSent)
         {
+            this.SchwellwertRecieved = SchwellwertRecieved;
+            this.SchwellwertSent = SchwellwertSent;
+
             this.initializeNetworScanner();
 
             this.AmountOfTests = (int)(timeoutInMinutes * 60) * (1000 / WaitMillisecBetweenTests);
@@ -57,7 +62,7 @@ namespace ClassLibrary1
             if (timespan <= 0)
             {
                 timespan = AmountOfTests;
-                this.SystemCanGoToSleep = TrafficIsToLow(maxKbsRecieved, maxKbsSent);
+                this.SystemCanGoToSleep = isTrafficToLow(maxKbsRecieved, maxKbsSent);
                 maxKbsRecieved = 0;
                 maxKbsSent = 0;
             }
@@ -65,7 +70,7 @@ namespace ClassLibrary1
 
             double KbsRecieved = this.getKbsRecieved();
             double KbsSent = this.getKbsSent();
-            if (!TrafficIsToLow(KbsRecieved, KbsSent))
+            if (!isTrafficToLow(KbsRecieved, KbsSent))
             {
                 SystemCanGoToSleep = false;
                 timespan = AmountOfTests;
@@ -84,11 +89,17 @@ namespace ClassLibrary1
         }
 
 
+        private bool isTrafficToLow(double KbsRecieved, double KbsSent)
+        {
+            return !(KbsRecieved > SchwellwertRecieved || KbsSent > SchwellwertSent);
+        }
+
+
         private void initializeNetworScanner()
         {
 
             performanceCounterCategory = new PerformanceCounterCategory("Network Interface");
-            string instance = performanceCounterCategory.GetInstanceNames()[0]; // 1st NIC !
+            string instance = performanceCounterCategory.GetInstanceNames()[0]; // erster NIC ! //TODO 
             performanceCounterSent = new PerformanceCounter("Network Interface", "Bytes Sent/sec", instance);
             performanceCounterReceived = new PerformanceCounter("Network Interface", "Bytes Received/sec", instance);
         }
@@ -102,13 +113,8 @@ namespace ClassLibrary1
         {
             return performanceCounterSent.NextValue() / 1024;
         }
+        
 
-
-
-
-        private bool TrafficIsToLow(double KbsRecieved, double KbsSent)
-        {
-            return !(KbsRecieved > SchwellwertRecieved || KbsSent > SchwellwertSent);
-        }
+        
     }
 }
