@@ -31,6 +31,7 @@ namespace ClassLibrary1
         {
             WorkerThread wt = new WorkerThread();
             wt.worker = worker;
+            wt.worker.striker = this;
             wt.thread = new Thread(worker.startthread);
             workers.Add(wt);
             wt.thread.Start();
@@ -39,7 +40,7 @@ namespace ClassLibrary1
 
         public abstract void addAllWorkers();
 
-        protected void endAllThreads()
+        public void stop()
         {
             foreach (WorkerThread wt in this.workers)
             {
@@ -52,6 +53,14 @@ namespace ClassLibrary1
         public void suspendSystem()
         {
             this.sleepController.suspendSystem();
+        }
+
+        public void onWorkerChangedState(bool newValue)
+        {
+            if (newValue)
+            {
+                this.sleepController.informAboutStateChange();
+            }
         }
 
         public Boolean SystemCanGoToSleep()

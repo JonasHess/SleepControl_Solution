@@ -23,41 +23,32 @@ namespace ClassLibrary1
         }
     }
 
+
+
     class NetworkTrafficWorker : Worker
     {
 
-        PerformanceCounterCategory performanceCounterCategory;
-        PerformanceCounter performanceCounterSent;
-        PerformanceCounter performanceCounterReceived;
-        
+        private PerformanceCounterCategory performanceCounterCategory;
+        private PerformanceCounter performanceCounterSent;
+        private PerformanceCounter performanceCounterReceived;
+
+        private double timeoutInMinutes = 0.2;
+        private int AmountOfTests;
+        private const int WaitMillisecBetweenTests = 250;
+        private const double SchwellwertRecieved = 1000;
+        private const double SchwellwertSent = 1000;
+
+        private int timespan;
+        private double maxKbsRecieved;
+        private double maxKbsSent;
 
         public NetworkTrafficWorker()
         {
             this.initializeNetworScanner();
-        }
 
-        private void initializeNetworScanner() { 
-        
-            performanceCounterCategory = new PerformanceCounterCategory("Network Interface");
-            string instance = performanceCounterCategory.GetInstanceNames()[0]; // 1st NIC !
-            performanceCounterSent = new PerformanceCounter("Network Interface", "Bytes Sent/sec", instance);
-            performanceCounterReceived = new PerformanceCounter("Network Interface", "Bytes Received/sec", instance);
+            this.AmountOfTests = (int)(timeoutInMinutes * 60) * (1000 / WaitMillisecBetweenTests);
+            timespan = AmountOfTests;
         }
-    
-        public double getKbsRecieved()
-        {
-            return performanceCounterReceived.NextValue() / 1024;
-        }
-
-        public double getKbsSent()
-        {
-            return performanceCounterSent.NextValue() / 1024;
-        }
-
-
-        private int timespan = 20;
-        private double maxKbsRecieved;
-        private double maxKbsSent;
 
         protected override void DoWork()
         {
@@ -65,20 +56,19 @@ namespace ClassLibrary1
 
             if (timespan <= 0)
             {
-                timespan = 20;
+                timespan = AmountOfTests;
                 this.SystemCanGoToSleep = TrafficIsToLow(maxKbsRecieved, maxKbsSent);
-
                 maxKbsRecieved = 0;
                 maxKbsSent = 0;
-                
             }
+
 
             double KbsRecieved = this.getKbsRecieved();
             double KbsSent = this.getKbsSent();
-            if (! TrafficIsToLow(KbsRecieved, KbsSent))
+            if (!TrafficIsToLow(KbsRecieved, KbsSent))
             {
                 SystemCanGoToSleep = false;
-                timespan = 20;
+                timespan = AmountOfTests;
             }
             if (maxKbsRecieved < KbsRecieved)
             {
@@ -90,12 +80,35 @@ namespace ClassLibrary1
             }
 
             Console.WriteLine(timespan + " :  " + this.getKbsRecieved());
-            System.Threading.Thread.Sleep(500);
+            System.Threading.Thread.Sleep(WaitMillisecBetweenTests);
         }
 
-        private bool TrafficIsToLow (double KbsRecieved, double KbsSent)
+
+        private void initializeNetworScanner()
         {
-            return !(KbsRecieved > 1000 || KbsSent > 1000);
+
+            performanceCounterCategory = new PerformanceCounterCategory("Network Interface");
+            string instance = performanceCounterCategory.GetInstanceNames()[0]; // 1st NIC !
+            performanceCounterSent = new PerformanceCounter("Network Interface", "Bytes Sent/sec", instance);
+            performanceCounterReceived = new PerformanceCounter("Network Interface", "Bytes Received/sec", instance);
+        }
+
+        public double getKbsRecieved()
+        {
+            return performanceCounterReceived.NextValue() / 1024;
+        }
+
+        public double getKbsSent()
+        {
+            return performanceCounterSent.NextValue() / 1024;
+        }
+
+
+
+
+        private bool TrafficIsToLow(double KbsRecieved, double KbsSent)
+        {
+            return !(KbsRecieved > SchwellwertRecieved || KbsSent > SchwellwertSent);
         }
     }
 }

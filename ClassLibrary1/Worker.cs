@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ClassLibrary1;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,10 +16,22 @@ namespace SleepControll_Lib
         // member will be accessed by multiple threads.
         private volatile bool _shouldStop = false;
 
+        bool _SystemCanGoToSleep = false;
         public bool SystemCanGoToSleep
+        {
+            get { return _SystemCanGoToSleep; }
+            set
+            {
+                _SystemCanGoToSleep = value;
+                striker.onWorkerChangedState(value);
+            }
+        }
+
+        public Strikeable striker
         {
             get; set;
         }
+
 
         // This method will be called when the thread is started.
         public void startthread()
@@ -26,7 +39,6 @@ namespace SleepControll_Lib
             while (!_shouldStop)
             {
                 this.DoWork();
-
             }
         }
         public void RequestStop()
