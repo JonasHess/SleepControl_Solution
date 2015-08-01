@@ -19,13 +19,29 @@ namespace SleepContoll_Console
 
 
             
-            Thread server = new Thread(AsynchronousSocketListener.StartListening);
-            Thread client = new Thread(AsynchronousClient.StartClient);
+            Thread server = new Thread(SynchronousSocketListener.StartListening);
+            Thread client1 = new Thread(SynchronousSocketClient.StartClient);
+            Thread client2 = new Thread(SynchronousSocketClient.StartClient);
+            Thread client3 = new Thread(SynchronousSocketClient.StartClient);
+            Thread client4 = new Thread(SynchronousSocketClient.StartClient);
+            Thread client5 = new Thread(SynchronousSocketClient.StartClient);
 
             server.Start();
-            System.Threading.Thread.Sleep(5000);
-            client.Start();
-            client.Join();
+            System.Threading.Thread.Sleep(500);
+
+            client1.Start();
+            client2.Start();
+            //client3.Start();
+            //client4.Start();
+            //client5.Start();
+
+
+
+            client1.Join();
+            client2.Join();
+            //client3.Join();
+            //client4.Join();
+            //client5.Join();
             server.Join();
         
 

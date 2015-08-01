@@ -41,8 +41,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ISleppControllerConfig.cs" />
-    <Compile Include="Sockets\AsynchronousClient.cs" />
-    <Compile Include="Sockets\AsynchronousSocketListener.cs" />
+    <Compile Include="Sockets\Server.cs" />
+    <Compile Include="Sockets\Client.cs" />
     <Compile Include="Strikers\Worker.cs" />
     <Compile Include="Strikers\NetworkTraffic\NetworkTrafficStriker.cs" />
     <Compile Include="Strikers\Strikeable.cs" />
